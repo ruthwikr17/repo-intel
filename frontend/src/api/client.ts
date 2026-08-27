@@ -1,0 +1,60 @@
+import axios from 'axios';
+import type {
+  AnalysisRequest, TaskStatus, Analysis,
+  Repository, Opportunity, UserProfile
+} from '../types';
+
+const api = axios.create({
+  baseURL: '/api',
+  headers: { 'Content-Type': 'application/json' },
+});
+
+export const triggerAnalysis = async (data: AnalysisRequest) => {
+  const res = await api.post('/repos/analyze', data);
+  return res.data as { task_id: string; status: string; message: string };
+};
+
+export const getTaskStatus = async (taskId: string) => {
+  const res = await api.get(`/repos/analyze/status/${taskId}`);
+  return res.data as TaskStatus;
+};
+
+export const getRepository = async (repoId: number) => {
+  const res = await api.get(`/repos/${repoId}`);
+  return res.data as Repository;
+};
+
+export const getAnalysis = async (repoId: number) => {
+  const res = await api.get(`/repos/${repoId}/analysis`);
+  return res.data as Analysis;
+};
+
+export const getOpportunities = async (repoId: number, tier?: string) => {
+  const params = tier ? { difficulty_tier: tier } : {};
+  const res = await api.get(`/repos/${repoId}/opportunities`, { params });
+  return res.data as { total: number; opportunities: Opportunity[] };
+};
+
+export const getMatchedOpportunities = async (
+  repoId: number,
+  profile: UserProfile
+) => {
+  const res = await api.post(`/repos/${repoId}/opportunities/match`, profile);
+  return res.data;
+};
+
+export const listRepos = async () => {
+  const res = await api.get('/repos');
+  return res.data as { total: number; repositories: Repository[] };
+};
+
+export const getQuota = async () => {
+  const res = await api.get('/admin/quota');
+  return res.data;
+};
+
+export const getAnalytics = async () => {
+  const res = await api.get('/analytics/overview');
+  return res.data;
+};
+

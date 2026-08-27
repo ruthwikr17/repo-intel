@@ -1,0 +1,44 @@
+from app.database import create_tables
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from app.config import get_settings
+from app.routes.health import router as health_router
+
+from app.routes.repos import router as repos_router
+from app.routes.admin import router as admin_router
+from app.routes.pdfs import router as pdfs_router
+from app.routes.analytics import router as analytics_router
+
+settings = get_settings()
+
+app = FastAPI(
+    title="RepoInsight API",
+    description="Repository Analysis and Contribution Matching Platform",
+    version="1.0.0",
+    debug=settings.debug,
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+app.include_router(health_router, prefix="/api", tags=["health"])
+app.include_router(repos_router, prefix="/api", tags=["repos"])
+app.include_router(admin_router, prefix="/api", tags=["admin"])
+app.include_router(pdfs_router, prefix="/api", tags=["pdfs"])
+app.include_router(analytics_router, prefix="/api", tags=["analytics"])
+
+
+@app.on_event("startup")
+async def startup():
+    await create_tables()
+    print(f"RepoInsight API starting in {settings.app_env} mode")
+
+
+@app.on_event("shutdown")
+async def shutdown():
+    print("RepoInsight API shutting down")

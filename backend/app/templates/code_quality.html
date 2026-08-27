@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    color: #24292f;
+    font-size: 13px;
+  }
+  .cover {
+    background: #0d1117;
+    color: white;
+    padding: 50px;
+  }
+  .cover .logo { font-size: 11px; color: #2ea44f; letter-spacing: 2px;
+                 text-transform: uppercase; margin-bottom: 16px; }
+  .cover h1 { font-size: 24px; font-weight: 700; margin-bottom: 6px; }
+  .cover .sub { font-size: 13px; color: #8b949e; font-family: monospace; }
+  .cover .date { font-size: 11px; color: #57606a; margin-top: 8px; }
+
+  .page { padding: 40px 50px; }
+
+  h2 {
+    font-size: 15px;
+    font-weight: 600;
+    color: #24292f;
+    margin: 26px 0 10px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid #e1e4e8;
+  }
+
+  h3 {
+    font-size: 13px;
+    font-weight: 600;
+    color: #24292f;
+    margin: 14px 0 6px;
+  }
+
+  p { line-height: 1.7; margin-bottom: 8px; color: #24292f; }
+
+  .metrics-grid {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin: 16px 0;
+  }
+
+  .metric-card {
+    border: 1px solid #e1e4e8;
+    border-radius: 8px;
+    padding: 16px;
+    text-align: center;
+    min-width: 90px;
+    flex: 1;
+  }
+
+  .metric-card .val {
+    font-size: 26px;
+    font-weight: 700;
+    color: #24292f;
+    display: block;
+  }
+
+  .metric-card .lbl {
+    font-size: 10px;
+    color: #57606a;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: block;
+    margin-top: 3px;
+  }
+
+  .issue-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid #f6f8fa;
+  }
+
+  .issue-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #fb8500;
+    margin-top: 5px;
+    flex-shrink: 0;
+  }
+
+  .issue-text {
+    flex: 1;
+  }
+
+  .issue-title {
+    font-size: 12px;
+    font-weight: 500;
+    color: #24292f;
+  }
+
+  .issue-file {
+    font-size: 11px;
+    color: #8b949e;
+    font-family: monospace;
+    margin-top: 1px;
+  }
+
+  .opp-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #f6f8fa;
+  }
+
+  .opp-title-small { font-size: 12px; color: #24292f; font-weight: 500; }
+  .opp-badge {
+    font-size: 10px;
+    padding: 2px 7px;
+    border-radius: 10px;
+    font-weight: 600;
+  }
+  .badge-beginner { background: #dafbe1; color: #2ea44f; }
+  .badge-intermediate { background: #fff3e0; color: #fb8500; }
+  .badge-advanced { background: #ffeef0; color: #e03e2d; }
+  .opp-time { font-size: 11px; color: #8b949e; }
+
+  .section-prose p {
+    color: #24292f;
+    margin-bottom: 8px;
+    line-height: 1.7;
+  }
+
+  .footer {
+    margin-top: 40px;
+    padding-top: 12px;
+    border-top: 1px solid #e1e4e8;
+    font-size: 10px;
+    color: #8b949e;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <div class="logo">RepoInsight</div>
+  <h1>Code Quality Report</h1>
+  <div class="sub">{{ repo.full_name }}</div>
+  <div class="date">{{ generated_at }}</div>
+</div>
+
+<div class="page">
+
+  <h2>Metrics Overview</h2>
+  <div class="metrics-grid">
+    <div class="metric-card">
+      <span class="val">{{ metrics.files_analyzed or 0 }}</span>
+      <span class="lbl">Files Analyzed</span>
+    </div>
+    <div class="metric-card">
+      <span class="val">{{ metrics.total_functions or 0 }}</span>
+      <span class="lbl">Functions</span>
+    </div>
+    <div class="metric-card">
+      <span class="val">{{ metrics.total_classes or 0 }}</span>
+      <span class="lbl">Classes</span>
+    </div>
+    <div class="metric-card">
+      <span class="val">{{ "%.1f" | format(metrics.avg_complexity or 0) }}</span>
+      <span class="lbl">Avg Complexity</span>
+    </div>
+    <div class="metric-card">
+      <span class="val">{{ (metrics.all_issues or []) | length }}</span>
+      <span class="lbl">Issues Found</span>
+    </div>
+  </div>
+
+  <h2>Architecture Assessment</h2>
+  <div class="section-prose">
+    {{ analysis.architecture_explanation | md | safe }}
+  </div>
+
+  <h2>Common Patterns</h2>
+  <div class="section-prose">
+    {{ analysis.common_patterns | md | safe }}
+  </div>
+
+
+  {% if (metrics.all_issues or []) | length > 0 %}
+  <h2>Detected Issues ({{ (metrics.all_issues or []) | length }})</h2>
+  {% for issue in (metrics.all_issues or [])[:20] %}
+  <div class="issue-row">
+    <div class="issue-dot"></div>
+    <div class="issue-text">
+      <div class="issue-title">{{ issue.issue }}</div>
+      <div class="issue-file">{{ issue.file }}</div>
+    </div>
+  </div>
+  {% endfor %}
+  {% endif %}
+
+  <h2>Contribution Opportunities</h2>
+  {% for opp in opportunities[:15] %}
+  <div class="opp-row">
+    <span class="opp-title-small">{{ opp.title }}</span>
+    <span style="display:flex; gap:8px; align-items:center;">
+      <span class="opp-time">⏱ {{ opp.estimated_hours }}h</span>
+      <span class="opp-badge badge-{{ opp.difficulty_tier }}">{{ opp.difficulty_tier }}</span>
+    </span>
+  </div>
+  {% endfor %}
+
+  <div class="footer">Generated by RepoInsight &bull; repoinsight.dev &bull; {{ generated_at }}</div>
+
+</div>
+</body>
+</html>
