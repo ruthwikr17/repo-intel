@@ -30,3 +30,7 @@ dist/
 .vscode/
 .idea/
 .claude/
+
+# Local context & scratch scripts
+context/
+create_code/

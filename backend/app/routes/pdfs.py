@@ -14,6 +14,7 @@ from app.services.pdf_service import (
     generate_contributor_guide,
     generate_executive_summary,
     generate_code_quality_report,
+    generate_full_analysis,
 )
 
 router = APIRouter()
@@ -21,7 +22,7 @@ router = APIRouter()
 
 class PdfRequest(BaseModel):
     repo_id: int
-    report_type: str  # contributor_guide / executive_summary / code_quality
+    report_type: str  # contributor_guide / executive_summary / code_quality / full_analysis
 
 
 @router.post("/pdfs/generate")
@@ -103,6 +104,8 @@ async def generate_pdf(request: PdfRequest, db: AsyncSession = Depends(get_db)):
             file_path = generate_executive_summary(analysis_dict, repo_dict)
         elif request.report_type == "code_quality":
             file_path = generate_code_quality_report(analysis_dict, repo_dict, opp_list)
+        elif request.report_type == "full_analysis":
+            file_path = generate_full_analysis(analysis_dict, repo_dict, opp_list)
         else:
             raise HTTPException(status_code=400, detail="Invalid report_type")
     except Exception as e:
@@ -141,7 +144,7 @@ async def download_pdf(pdf_id: int, db: AsyncSession = Depends(get_db)):
     if not os.path.exists(pdf_record.file_path):
         raise HTTPException(status_code=404, detail="PDF file missing from disk")
 
-    filename = f"repoinsight_{pdf_record.report_type}_{pdf_record.repo_id}.pdf"
+    filename = f"repo_intel_{pdf_record.report_type}_{pdf_record.repo_id}.pdf"
     return FileResponse(
         pdf_record.file_path,
         media_type="application/pdf",

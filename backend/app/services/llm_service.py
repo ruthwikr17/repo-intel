@@ -43,7 +43,7 @@ async def call_gemini(prompt: str, api_key: str) -> str:
             model_name="gemini-3.6-flash",
             generation_config=genai.GenerationConfig(
                 temperature=0.3,
-                max_output_tokens=3000,
+                max_output_tokens=8192,  # Changed from 2048 to 8192
             ),
         )
         response = await asyncio.to_thread(model.generate_content, prompt)
@@ -57,19 +57,33 @@ async def call_gemini(prompt: str, api_key: str) -> str:
 # ─── Groq Client ─────────────────────────────────────────────────────────────
 
 
-async def call_groq(prompt: str) -> str:
-    """Call Groq API with given prompt."""
-    try:
-        client = AsyncGroq(api_key=settings.groq_api_key)
-        response = await client.chat.completions.create(
-            model="openai/gpt-oss-120b",
-            messages=[{"role": "user", "content": prompt}],
-            temperature=0.3,
-            max_tokens=2048,
-        )
-        return response.choices[0].message.content
-    except Exception as e:
-        return f"[Groq Error: {str(e)}]"
+async def call_groq(prompt: str, max_retries: int = 3) -> str:
+    """Call Groq API with given prompt and automatic retry on rate limit."""
+    client = AsyncGroq(api_key=settings.groq_api_key)
+    models_to_try = ["qwen/qwen3.8-27b", "openai/gpt-oss-120b"]
+    
+    for model_name in models_to_try:
+        for attempt in range(max_retries):
+            try:
+                response = await client.chat.completions.create(
+                    model=model_name,
+                    messages=[{"role": "user", "content": prompt}],
+                    temperature=0.3,
+                    max_tokens=8192,  # Changed from 2048 to 8192
+                )
+                return response.choices[0].message.content
+            except Exception as e:
+                err_str = str(e)
+                # If rate limited (429), wait and retry
+                if "429" in err_str or "rate_limit_exceeded" in err_str:
+                    wait_time = (2 ** attempt) * 2 + 1  # 3s, 5s, 9s
+                    print(f"Groq rate limit on {model_name} (attempt {attempt+1}/{max_retries}), waiting {wait_time}s...")
+                    await asyncio.sleep(wait_time)
+                else:
+                    print(f"Groq error on {model_name}: {err_str}")
+                    break  # Try next model fallback
+                    
+    return f"[Groq Error: Rate limit or service unavailable after retries]"
 
 
 # ─── Tier 1: Hybrid (Gemini + Groq) ─────────────────────────────────────────
@@ -201,28 +215,89 @@ async def generate_ai_opportunities(repo_data: dict, gemini_key: str = None) -> 
     """
     prompt = prompt_contribution_suggestions(repo_data)
 
-    # Try Gemini first, fallback to Groq
     raw = ""
     if gemini_key:
         raw = await call_gemini(prompt, gemini_key)
-
     if not raw:
         raw = await call_groq(prompt)
 
-    # Parse JSON response
+    if not raw:
+        print("[AI Suggestions] Empty response from both models")
+        return []
+
     try:
-        # Strip any markdown if model added it
         clean = raw.strip()
-        if clean.startswith("```"):
-            clean = clean.split("```")[1]
-            if clean.startswith("json"):
-                clean = clean[4:]
-        clean = clean.strip()
-        suggestions = json.loads(clean)
+
+        # Strip markdown code fences
+        if "```json" in clean:
+            clean = clean.split("```json")[1].split("```")[0].strip()
+        elif "```" in clean:
+            parts = clean.split("```")
+            if len(parts) >= 2:
+                clean = parts[1].strip()
+
+        # Find the JSON array boundaries
+        start = clean.find('[')
+        end = clean.rfind(']')
+
+        if start == -1:
+            print(f"[AI Suggestions] No JSON array found in response")
+            return []
+
+        if end == -1 or end <= start:
+            # Response was truncated - try to salvage complete objects
+            print(f"[AI Suggestions] Response truncated, attempting salvage")
+            clean = clean[start:]
+            # Count complete objects by counting balanced braces
+            salvaged = []
+            depth = 0
+            current_obj_start = -1
+            i = 0
+            in_string = False
+            escape_next = False
+
+            for i, char in enumerate(clean):
+                if escape_next:
+                    escape_next = False
+                    continue
+                if char == '\\' and in_string:
+                    escape_next = True
+                    continue
+                if char == '"' and not escape_next:
+                    in_string = not in_string
+                    continue
+                if in_string:
+                    continue
+                if char == '{':
+                    if depth == 1:
+                        current_obj_start = i
+                    depth += 1
+                elif char == '}':
+                    depth -= 1
+                    if depth == 1 and current_obj_start != -1:
+                        obj_str = clean[current_obj_start:i+1]
+                        try:
+                            obj = json.loads(obj_str)
+                            salvaged.append(obj)
+                        except Exception:
+                            pass
+                        current_obj_start = -1
+
+            if salvaged:
+                print(f"[AI Suggestions] Salvaged {len(salvaged)} complete suggestions")
+                return salvaged[:12]
+            return []
+
+        json_str = clean[start:end+1]
+        suggestions = json.loads(json_str)
+
         if isinstance(suggestions, list):
+            print(f"[AI Suggestions] Successfully parsed {len(suggestions)} suggestions")
             return suggestions[:12]
+
     except Exception as e:
-        print(f"Failed to parse AI suggestions: {e}")
+        print(f"[AI Suggestions] Parse failed: {e}")
+        print(f"[AI Suggestions] Raw response first 500 chars: {raw[:500]}")
         return []
 
     return []

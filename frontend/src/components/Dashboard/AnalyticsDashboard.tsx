@@ -4,6 +4,7 @@ import { SimpleBarChart } from './SimpleBarChart';
 import { ActivityFeed } from './ActivityFeed';
 import { LoadingSpinner } from '../shared/LoadingSpinner';
 import { ErrorMessage } from '../shared/ErrorMessage';
+import { getAnalytics } from '../../api/client';
 
 interface AnalyticsData {
   overview: {
@@ -39,13 +40,12 @@ export function AnalyticsDashboard() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch('/api/analytics/overview')
-      .then(res => {
-        if (!res.ok) throw new Error('Failed to load analytics');
-        return res.json();
-      })
+    getAnalytics()
       .then(setData)
-      .catch(e => setError(e.message))
+      .catch((e: any) => {
+        console.error('Failed to load analytics:', e);
+        setError(e?.response?.data?.detail || e?.message || 'Failed to load analytics');
+      })
       .finally(() => setLoading(false));
   }, []);
 

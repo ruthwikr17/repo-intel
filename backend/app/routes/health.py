@@ -15,6 +15,6 @@ async def health_check(db: AsyncSession = Depends(get_db)):
 
     return {
         "status": "ok",
-        "app": "RepoInsight",
+        "app": "Repo Intel",
         "database": db_status
     }

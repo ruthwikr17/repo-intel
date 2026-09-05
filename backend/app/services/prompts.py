@@ -336,8 +336,8 @@ def prompt_contribution_suggestions(repo_data: dict) -> str:
     has_ci = tech_stack.get("has_ci", False)
     has_docker = tech_stack.get("has_docker", False)
     lang = metadata.get("language", "Unknown")
-    all_imports = ast.get("all_imports", [])[:20]
-    key_files = list(file_results.keys())[:10]
+    all_imports = ast.get("all_imports", [])[:12]
+    key_files = list(file_results.keys())[:6]
 
     github_issues_text = "\n".join(
         f"- #{i.get('number')}: {i.get('title','')}"
@@ -371,7 +371,7 @@ Open GitHub issues:
 {github_issues_text}
 
 README excerpt:
-{readme[:1500] if readme else 'No README'}
+{readme[:800] if readme else 'No README'}
 
 Generate 10 diverse contribution ideas. Think: what would make this project
 more useful, more complete, better documented, easier to use?

@@ -24,14 +24,22 @@ export function ResultsDashboard({ repoId, userProfile }: Props) {
   const handleDownloadPdf = async (reportType: string) => {
     setDownloading(true);
     try {
-      const res = await fetch('/api/pdfs/generate', {
+      const baseUrl = import.meta.env.VITE_API_URL
+        ? `${import.meta.env.VITE_API_URL.replace(/\/+$/, '')}/api`
+        : '/api';
+      const res = await fetch(`${baseUrl}/pdfs/generate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ repo_id: repoId, report_type: reportType }),
       });
       const data = await res.json();
       if (data.download_url) {
-        window.open(data.download_url, '_blank');
+        const fullUrl = data.download_url.startsWith('http')
+          ? data.download_url
+          : import.meta.env.VITE_API_URL
+          ? `${import.meta.env.VITE_API_URL.replace(/\/+$/, '')}${data.download_url}`
+          : data.download_url;
+        window.open(fullUrl, '_blank');
       }
     } catch (e) {
       console.error('PDF download failed', e);
@@ -95,22 +103,24 @@ export function ResultsDashboard({ repoId, userProfile }: Props) {
           Download PDF:
         </span>
         {[
-          { label: 'Contributor Guide', type: 'contributor_guide' },
-          { label: 'Executive Summary', type: 'executive_summary' },
-          { label: 'Code Quality', type: 'code_quality' },
+          { label: '📋 Contributor Guide', type: 'contributor_guide' },
+          { label: '📊 Code Quality', type: 'code_quality' },
+          { label: '📄 Executive Summary', type: 'executive_summary' },
+          { label: '📁 Full Analysis', type: 'full_analysis' },
         ].map(({ label, type }) => (
           <button
             key={type}
             onClick={() => handleDownloadPdf(type)}
             disabled={downloading}
-            className="text-xs px-3 py-1 rounded border"
+            className="text-xs px-3 py-1.5 rounded border"
             style={{
               borderColor: '#d0d7de',
-              color: '#57606a',
+              color: 'var(--text-muted)',
+              backgroundColor: 'var(--bg-card)',
               opacity: downloading ? 0.6 : 1,
             }}
           >
-            {label}
+            {downloading ? '⏳' : label}
           </button>
         ))}
       </div>

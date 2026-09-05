@@ -17,7 +17,7 @@ export function Sidebar({ currentView, onNavigate, repoName, darkMode, onToggleD
       {/* Logo */}
       <div className="mb-8">
         <span className="text-white font-bold text-lg tracking-tight">
-          Repo<span style={{ color: '#2ea44f' }}>Insight</span>
+          Repo<span style={{ color: '#2ea44f' }}>Intel</span>
         </span>
         <p style={{ color: '#57606a', fontSize: '11px' }} className="mt-1">
           Open Source Intelligence
@@ -66,7 +66,7 @@ export function Sidebar({ currentView, onNavigate, repoName, darkMode, onToggleD
           {darkMode ? '☀️ Light Mode' : '🌙 Dark Mode'}
         </button>
         <p style={{ color: '#57606a', fontSize: '11px' }}>
-          RepoInsight v1.0
+          Repo Intel v1.0
         </p>
       </div>
     </div>

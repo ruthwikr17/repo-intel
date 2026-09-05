@@ -1,4 +1,6 @@
-from fastapi import APIRouter, HTTPException, Depends
+from collections import defaultdict
+from datetime import date
+from fastapi import APIRouter, HTTPException, Depends, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from celery.result import AsyncResult
@@ -21,8 +23,12 @@ from app.models.analysis import RepositoryAnalysis
 from app.models.opportunity import Opportunity
 from app.tasks.analysis_task import run_full_analysis
 from app.worker import celery_app
+from pydantic import BaseModel
 
 router = APIRouter()
+
+# Simple in-memory rate limit (resets on server restart)
+daily_requests = defaultdict(int)
 
 
 # ─── Existing endpoints (keep as-is) ─────────────────────────────────────────
@@ -31,9 +37,6 @@ router = APIRouter()
 class RepoURLRequest:
     def __init__(self, url: str):
         self.url = url
-
-
-from pydantic import BaseModel
 
 
 class URLBody(BaseModel):
@@ -65,11 +68,23 @@ async def analyze_repo_locally(request: URLBody):
 
 
 @router.post("/repos/analyze")
-async def trigger_analysis(request: AnalysisRequest):
+async def trigger_analysis(request: AnalysisRequest, req: Request):
     """
     Trigger full async analysis pipeline via Celery.
     Returns task_id immediately. Poll /analyze/status/{task_id} for result.
     """
+    ip = req.client.host if req.client else "unknown"
+    today = str(date.today())
+    key = f"{ip}:{today}"
+
+    if daily_requests[key] >= 5:  # Max 5 analyses per IP per day
+        raise HTTPException(
+            status_code=429,
+            detail="Daily limit reached. Each IP can analyze 5 repos per day."
+        )
+
+    daily_requests[key] += 1
+
     if not is_valid_github_url(request.url):
         raise HTTPException(status_code=400, detail="Invalid GitHub repository URL")
 

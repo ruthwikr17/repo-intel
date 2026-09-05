@@ -155,3 +155,32 @@ def generate_code_quality_report(
         f.write(pdf_bytes)
     return str(output_path)
 
+
+def generate_full_analysis(
+    analysis: dict,
+    repo: dict,
+    opportunities: list,
+) -> str:
+    """
+    Generate Full Analysis PDF combining all sections.
+    This is the most comprehensive report.
+    """
+    env = get_jinja_env()
+    template = env.get_template("full_analysis.html")
+
+    html_content = template.render(
+        repo=repo,
+        analysis=analysis,
+        opportunities=opportunities,
+        generated_at=datetime.now().strftime("%B %d, %Y"),
+        beginner_opps=[o for o in opportunities if o.get("difficulty_tier") == "beginner"],
+        intermediate_opps=[o for o in opportunities if o.get("difficulty_tier") == "intermediate"],
+        advanced_opps=[o for o in opportunities if o.get("difficulty_tier") == "advanced"],
+    )
+
+    filename = f"full_analysis_{uuid.uuid4().hex[:8]}.pdf"
+    output_path = OUTPUT_DIR / filename
+    HTML(string=html_content).write_pdf(str(output_path))
+    return str(output_path)
+
+

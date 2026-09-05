@@ -1,5 +1,5 @@
 {
-  "name": "repoinsight-frontend",
+  "name": "repo-intel-frontend",
   "version": "1.0.0",
   "scripts": {
     "dev": "vite",

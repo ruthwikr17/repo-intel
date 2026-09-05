@@ -2,7 +2,7 @@ from pydantic_settings import BaseSettings
 from functools import lru_cache
 
 class Settings(BaseSettings):
-    app_name: str = "RepoInsight"
+    app_name: str = "Repo Intel"
     app_env: str = "development"
     app_port: int = 8000
     debug: bool = True

@@ -12,7 +12,7 @@ from app.routes.analytics import router as analytics_router
 settings = get_settings()
 
 app = FastAPI(
-    title="RepoInsight API",
+    title="Repo Intel API",
     description="Repository Analysis and Contribution Matching Platform",
     version="1.0.0",
     debug=settings.debug,
@@ -20,7 +20,12 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=[
+        "http://localhost:5173",
+        "https://your-app.vercel.app",
+        "https://repo-intel.vercel.app",
+        "https://repo-intel-frontend.vercel.app",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -36,9 +41,9 @@ app.include_router(analytics_router, prefix="/api", tags=["analytics"])
 @app.on_event("startup")
 async def startup():
     await create_tables()
-    print(f"RepoInsight API starting in {settings.app_env} mode")
+    print(f"Repo Intel API starting in {settings.app_env} mode")
 
 
 @app.on_event("shutdown")
 async def shutdown():
-    print("RepoInsight API shutting down")
+    print("Repo Intel API shutting down")

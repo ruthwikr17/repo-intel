@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    color: #24292f;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+  .cover {
+    background: #0d1117;
+    color: white;
+    padding: 60px 50px;
+  }
+  .cover .logo {
+    font-size: 11px;
+    color: #2ea44f;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .cover h1 { font-size: 26px; font-weight: 700; margin-bottom: 8px; }
+  .cover .repo { font-size: 14px; color: #8b949e; font-family: monospace; }
+  .cover .date { font-size: 11px; color: #57606a; margin-top: 8px; }
+
+  .page { padding: 40px 50px; }
+
+  .stat-bar {
+    display: flex;
+    border: 1px solid #e1e4e8;
+    border-radius: 6px;
+    overflow: hidden;
+    margin: 20px 0;
+  }
+  .stat-item {
+    flex: 1;
+    text-align: center;
+    padding: 14px 10px;
+    border-right: 1px solid #e1e4e8;
+  }
+  .stat-item:last-child { border-right: none; }
+  .stat-num { font-size: 22px; font-weight: 700; display: block; }
+  .stat-lbl { font-size: 10px; color: #57606a; text-transform: uppercase; display: block; margin-top: 2px; }
+
+  h2 {
+    font-size: 15px;
+    font-weight: 600;
+    color: #24292f;
+    margin: 28px 0 10px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid #2ea44f;
+  }
+  h3 {
+    font-size: 13px;
+    font-weight: 600;
+    color: #24292f;
+    margin: 14px 0 6px;
+    padding-bottom: 3px;
+    border-bottom: 1px solid #e8e8e8;
+  }
+  p { margin-bottom: 8px; color: #24292f; }
+  li { margin-bottom: 4px; color: #24292f; padding-left: 4px; }
+  ul { padding-left: 16px; margin-bottom: 10px; }
+  strong { font-weight: 600; }
+  code {
+    background: #f6f8fa;
+    border: 1px solid #e1e4e8;
+    border-radius: 3px;
+    padding: 1px 4px;
+    font-family: monospace;
+    font-size: 11px;
+  }
+  pre {
+    background: #f6f8fa;
+    border: 1px solid #e1e4e8;
+    border-radius: 6px;
+    padding: 12px;
+    font-family: monospace;
+    font-size: 11px;
+    white-space: pre-wrap;
+    margin: 8px 0;
+  }
+  .section-content p { line-height: 1.7; }
+
+  .opp-tier-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 5px 10px;
+    border-radius: 4px;
+    display: inline-block;
+    margin: 16px 0 8px;
+  }
+  .tier-beginner { background: #dafbe1; color: #2ea44f; }
+  .tier-intermediate { background: #fff3e0; color: #fb8500; }
+  .tier-advanced { background: #ffeef0; color: #e03e2d; }
+
+  .opp-card {
+    border: 1px solid #e1e4e8;
+    border-radius: 6px;
+    padding: 12px;
+    margin-bottom: 8px;
+    page-break-inside: avoid;
+  }
+  .opp-title { font-weight: 600; margin-bottom: 4px; }
+  .opp-desc { font-size: 12px; color: #57606a; margin-bottom: 6px; line-height: 1.5; }
+  .opp-meta { font-size: 11px; color: #8b949e; }
+
+  .page-break { page-break-before: always; }
+
+  .footer {
+    margin-top: 50px;
+    padding-top: 12px;
+    border-top: 1px solid #e1e4e8;
+    font-size: 10px;
+    color: #8b949e;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<!-- COVER -->
+<div class="cover">
+  <div class="logo">Repo Intel — Full Analysis</div>
+  <h1>{{ repo.full_name }}</h1>
+  <div class="repo">Complete Repository Intelligence Report</div>
+  <div class="date">Generated {{ generated_at }}</div>
+</div>
+
+<div class="page">
+
+  <!-- Stats -->
+  <div class="stat-bar">
+    <div class="stat-item">
+      <span class="stat-num">{{ repo.stars }}</span>
+      <span class="stat-lbl">Stars</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num">{{ repo.forks }}</span>
+      <span class="stat-lbl">Forks</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num">{{ repo.open_issues_count }}</span>
+      <span class="stat-lbl">Open Issues</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num">{{ opportunities | length }}</span>
+      <span class="stat-lbl">Opportunities</span>
+    </div>
+  </div>
+
+  <!-- Summary -->
+  <h2>Project Summary</h2>
+  <div class="section-content">
+    {{ analysis.summary | md | safe }}
+  </div>
+
+  <!-- Architecture -->
+  <h2>Architecture</h2>
+  <div class="section-content">
+    {{ analysis.architecture_explanation | md | safe }}
+  </div>
+
+  <!-- Code Walkthrough -->
+  <h2>Code Walkthrough</h2>
+  <div class="section-content">
+    {{ analysis.code_walkthrough | md | safe }}
+  </div>
+
+  <!-- Common Patterns -->
+  <h2>Common Patterns</h2>
+  <div class="section-content">
+    {{ analysis.common_patterns | md | safe }}
+  </div>
+
+  <!-- Gotchas -->
+  <h2>Gotchas & Tips</h2>
+  <div class="section-content">
+    {{ analysis.gotchas_and_tips | md | safe }}
+  </div>
+
+  <!-- Setup Guide -->
+  <h2>Setup Guide</h2>
+  <div class="section-content">
+    {{ analysis.setup_guide | md | safe }}
+  </div>
+
+  <!-- Opportunities -->
+  <div class="page-break"></div>
+  <h2>Contribution Opportunities ({{ opportunities | length }} total)</h2>
+
+  {% if beginner_opps %}
+  <div class="opp-tier-label tier-beginner">Beginner — {{ beginner_opps | length }} tasks</div>
+  {% for opp in beginner_opps %}
+  <div class="opp-card">
+    <div class="opp-title">{{ opp.title }}</div>
+    {% if opp.description %}
+    <div class="opp-desc">{{ opp.description[:250] }}</div>
+    {% endif %}
+    <div class="opp-meta">
+      ⏱ {{ opp.estimated_hours }}h &nbsp;
+      📚 Learning: {{ opp.learning_value }}/10 &nbsp;
+      💥 Impact: {{ opp.impact }}/10
+      {% if opp.github_issue_url %}&nbsp; 🔗 Issue #{{ opp.github_issue_number }}{% endif %}
+    </div>
+  </div>
+  {% endfor %}
+  {% endif %}
+
+  {% if intermediate_opps %}
+  <div class="opp-tier-label tier-intermediate">Intermediate — {{ intermediate_opps | length }} tasks</div>
+  {% for opp in intermediate_opps %}
+  <div class="opp-card">
+    <div class="opp-title">{{ opp.title }}</div>
+    {% if opp.description %}
+    <div class="opp-desc">{{ opp.description[:250] }}</div>
+    {% endif %}
+    <div class="opp-meta">
+      ⏱ {{ opp.estimated_hours }}h &nbsp;
+      📚 Learning: {{ opp.learning_value }}/10 &nbsp;
+      💥 Impact: {{ opp.impact }}/10
+    </div>
+  </div>
+  {% endfor %}
+  {% endif %}
+
+  {% if advanced_opps %}
+  <div class="opp-tier-label tier-advanced">Advanced — {{ advanced_opps | length }} tasks</div>
+  {% for opp in advanced_opps %}
+  <div class="opp-card">
+    <div class="opp-title">{{ opp.title }}</div>
+    {% if opp.description %}
+    <div class="opp-desc">{{ opp.description[:250] }}</div>
+    {% endif %}
+    <div class="opp-meta">
+      ⏱ {{ opp.estimated_hours }}h &nbsp;
+      📚 Learning: {{ opp.learning_value }}/10 &nbsp;
+      💥 Impact: {{ opp.impact }}/10
+    </div>
+  </div>
+  {% endfor %}
+  {% endif %}
+
+  <div class="footer">
+    Generated by Repo Intel &bull; repointel.dev &bull; {{ generated_at }}
+  </div>
+</div>
+
+</body>
+</html>
