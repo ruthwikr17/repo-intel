@@ -15,7 +15,7 @@ def get_redis_url_with_ssl(url: str) -> str:
 redis_ssl_config = {}
 if settings.redis_url.startswith("rediss://"):
     redis_ssl_config = {
-        "ssl_cert_reqs": "CERT_NONE",
+        "ssl_cert_reqs": "none",
     }
 
 celery_app = Celery(
