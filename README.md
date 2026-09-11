@@ -1,6 +1,6 @@
 <div align="center">
 
-# ⚡ RepoIntel
+# RepoIntel
 
 ### *AI-Powered Open-Source Repository Intelligence, AST Code Analysis & Contributor Matchmaker*
 

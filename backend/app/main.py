@@ -18,13 +18,15 @@ app = FastAPI(
     debug=settings.debug,
 )
 
+import os
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:5173",
-        "https://your-app.vercel.app",
-        "https://repo-intel.vercel.app",
-        "https://repo-intel-frontend.vercel.app",
+        "https://repo-intel-gray.vercel.app",
+        # Add any other Vercel preview URLs if needed
+        os.getenv("FRONTEND_URL", ""),
     ],
     allow_credentials=True,
     allow_methods=["*"],
