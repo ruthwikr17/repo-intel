@@ -94,7 +94,15 @@ async def trigger_analysis(request: AnalysisRequest, req: Request):
         "preferred_categories": request.preferred_categories,
     }
 
-    task = run_full_analysis.delay(request.url, user_profile)
+    try:
+        task = run_full_analysis.delay(request.url, user_profile)
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(
+            status_code=500,
+            detail=f"Task dispatch failed: {type(e).__name__}: {str(e)}"
+        )
 
     return {
         "task_id": task.id,
