@@ -231,6 +231,7 @@ async def get_opportunities(
                 "difficulty_tier": o.difficulty_tier,
                 "github_issue_number": o.github_issue_number,
                 "github_issue_url": o.github_issue_url,
+                "source": o.source,
             }
             for o in opportunities
         ],
