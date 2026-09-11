@@ -231,7 +231,7 @@ async def get_opportunities(
                 "difficulty_tier": o.difficulty_tier,
                 "github_issue_number": o.github_issue_number,
                 "github_issue_url": o.github_issue_url,
-                "source": o.source,
+                "source": getattr(o, "source", "github_issue" if o.github_issue_number else "ai_suggestion"),
             }
             for o in opportunities
         ],
