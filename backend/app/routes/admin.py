@@ -18,3 +18,9 @@ async def get_quota_status(db: AsyncSession = Depends(get_db)):
         "date": str(__import__("datetime").date.today()),
         "quota": capacity,
     }
+
+
+@router.get("/admin/version")
+async def get_version():
+    return {"version": "v1.0.3-d46493d"}
+
