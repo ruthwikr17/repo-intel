@@ -223,20 +223,16 @@ Make sure you have the following installed:
 
 ### Render deployment
 
-Deploy the API and Celery worker as **two separate Render services** from the
-same `backend` directory. They must have the same values for `REDIS_URL`,
-`DATABASE_URL`, and the GitHub/LLM environment variables.
-
-| Render service | Service type | Start command |
-|---|---|---|
-| API | Web Service | `bash start.sh` |
-| Analysis worker | Background Worker | `bash start-worker.sh` |
+For a Render Free web service, use one service with `backend` as its root
+directory and `bash start.sh` as its start command. It runs one FastAPI process
+and one non-forking Celery worker to stay within the 512 MB instance limit.
+Celery uses Redis late acknowledgements, so an in-flight job is returned to the
+queue if Render restarts the service.
 
 Set the API health-check path to `/api/health`. Point Vercel's `VITE_API_URL`
 at the API web-service URL only (without `/api`); rebuild/redeploy the
-frontend after changing that variable. Do not use `start.sh` for the worker or
-run the worker as a background process in the web service: Render restarts of
-the API would otherwise terminate active analyses.
+frontend after changing that variable. `start-worker.sh` is optional and only
+for a future paid Background Worker deployment.
 
 ---
 

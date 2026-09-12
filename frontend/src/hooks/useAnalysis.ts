@@ -46,9 +46,12 @@ export function useAnalysis() {
         // or is replaced during a deploy.  The job is safely held by Redis, so
         // keep polling instead of abandoning the analysis after one failure.
         statusFailureCountRef.current += 1;
-        if (statusFailureCountRef.current >= 12) {
+        // A Render free instance can need around a minute to wake, and a
+        // deploy can take longer while the Celery worker reconnects to Redis.
+        // The task stays in Redis, so keep polling through that recovery.
+        if (statusFailureCountRef.current >= 48) {
           if (intervalRef.current) clearInterval(intervalRef.current);
-          setError('Unable to reach the backend for one minute. Please try again shortly.');
+          setError('Unable to reach the backend after several minutes. Please try again shortly.');
           setLoading(false);
         }
       }
