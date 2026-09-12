@@ -221,6 +221,25 @@ Make sure you have the following installed:
 
 ---
 
+### Render deployment
+
+Deploy the API and Celery worker as **two separate Render services** from the
+same `backend` directory. They must have the same values for `REDIS_URL`,
+`DATABASE_URL`, and the GitHub/LLM environment variables.
+
+| Render service | Service type | Start command |
+|---|---|---|
+| API | Web Service | `bash start.sh` |
+| Analysis worker | Background Worker | `bash start-worker.sh` |
+
+Set the API health-check path to `/api/health`. Point Vercel's `VITE_API_URL`
+at the API web-service URL only (without `/api`); rebuild/redeploy the
+frontend after changing that variable. Do not use `start.sh` for the worker or
+run the worker as a background process in the web service: Render restarts of
+the API would otherwise terminate active analyses.
+
+---
+
 ### Manual Local Setup (Without Docker)
 
 <details>

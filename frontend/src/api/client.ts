@@ -11,6 +11,9 @@ const baseURL = import.meta.env.VITE_API_URL
 const api = axios.create({
   baseURL,
   headers: { 'Content-Type': 'application/json' },
+  // A stuck connection should become a retryable polling error, rather than
+  // leaving the progress view spinning forever.
+  timeout: 15_000,
 });
 
 export const triggerAnalysis = async (data: AnalysisRequest) => {
@@ -61,4 +64,3 @@ export const getAnalytics = async () => {
   const res = await api.get('/analytics/overview');
   return res.data;
 };
-

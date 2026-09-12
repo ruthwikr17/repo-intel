@@ -8,11 +8,13 @@ export function useAnalysis() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const statusFailureCountRef = useRef(0);
 
   const startAnalysis = async (data: AnalysisRequest) => {
     setLoading(true);
     setError(null);
     setTaskStatus(null);
+    statusFailureCountRef.current = 0;
     try {
       const res = await triggerAnalysis(data);
       setTaskId(res.task_id);
@@ -28,6 +30,7 @@ export function useAnalysis() {
     const poll = async () => {
       try {
         const status = await getTaskStatus(taskId);
+        statusFailureCountRef.current = 0;
         setTaskStatus(status);
 
         if (status.status === 'completed' || status.status === 'failed' || status.status === 'queued') {
@@ -39,9 +42,15 @@ export function useAnalysis() {
           }
         }
       } catch (e) {
-        if (intervalRef.current) clearInterval(intervalRef.current);
-        setError('Failed to get analysis status. Check if backend is running.');
-        setLoading(false);
+        // Render can briefly return no response while a web service wakes up
+        // or is replaced during a deploy.  The job is safely held by Redis, so
+        // keep polling instead of abandoning the analysis after one failure.
+        statusFailureCountRef.current += 1;
+        if (statusFailureCountRef.current >= 12) {
+          if (intervalRef.current) clearInterval(intervalRef.current);
+          setError('Unable to reach the backend for one minute. Please try again shortly.');
+          setLoading(false);
+        }
       }
     };
 
