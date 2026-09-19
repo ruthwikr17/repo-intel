@@ -4,6 +4,8 @@
 
 ### *AI-Powered Open-Source Repository Intelligence, AST Code Analysis & Contributor Matchmaker*
 
+🌐 **[Live Application](https://repo-intel-gray.vercel.app/)**
+
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115.6-009688.svg?style=flat-square&logo=FastAPI&logoColor=white)](https://fastapi.tiangolo.com)
 [![React](https://img.shields.io/badge/React-18.3-61DAFB.svg?style=flat-square&logo=react&logoColor=black)](https://reactjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.5-3178C6.svg?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
@@ -17,7 +19,7 @@
 
 **RepoIntel** transforms any open-source GitHub repository into an actionable developer onboarding experience. By combining static AST code analysis, GitHub REST/MCP integration, multi-model LLM reasoning (Gemini + Groq Llama), a contribution scoring algorithm, personalized developer skill matching, and vector-ready PDF report generation, RepoIntel helps developers start contributing to complex codebases within minutes.
 
-[Features](#-key-features) • [Architecture](#-system-architecture) • [Tech Stack](#-tech-stack) • [Getting Started](#-getting-started) • [API Documentation](#-api-reference) • [Workflow](#-analysis-pipeline-a-to-z) • [Contributing](#-contributing)
+[Live Demo](https://repo-intel-gray.vercel.app/) • [Features](#-key-features) • [Architecture](#-system-architecture) • [Tech Stack](#-tech-stack) • [Getting Started](#-getting-started) • [API Documentation](#-api-reference) • [Workflow](#-analysis-pipeline-a-to-z) • [Contributing](#-contributing)
 
 </div>
 
