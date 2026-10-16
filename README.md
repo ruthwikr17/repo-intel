@@ -25,7 +25,7 @@
 
 ---
 
-## 🌟 Key Features
+## Key Features
 
 - 🔍 **Deep AST & Static Code Intelligence**: Analyzes file hierarchy, functions, classes, dependencies, cyclomatic complexity, code quality indicators, and architectural patterns.
 - 🤖 **Tiered Multi-LLM Orchestration**:
@@ -43,7 +43,7 @@
 
 ---
 
-## 🏗 System Architecture
+## System Architecture
 
 ```
                                   ┌──────────────────────────┐
@@ -80,7 +80,7 @@
 
 ---
 
-## 🛠 Tech Stack
+## Tech Stack
 
 ### **Backend & Core Engine**
 - **Framework**: [FastAPI](https://fastapi.tiangolo.com/) (Python 3.11 asynchronous ASGI web framework)
@@ -106,7 +106,7 @@
 
 ---
 
-## 📂 Project Structure
+## Project Structure
 
 ```
 .
@@ -161,7 +161,7 @@
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 Make sure you have the following installed:
@@ -274,7 +274,7 @@ npm run dev
 
 ---
 
-## 🔄 Analysis Pipeline (A to Z)
+## Analysis Pipeline (A to Z)
 
 ```
 [ User Submits GitHub URL ]
@@ -322,7 +322,7 @@ npm run dev
 
 ---
 
-## 📖 API Reference
+## API Reference
 
 Explore the interactive Swagger UI documentation at: **`http://localhost:8000/docs`**
 
@@ -344,7 +344,7 @@ Explore the interactive Swagger UI documentation at: **`http://localhost:8000/do
 
 ---
 
-## 🧪 Running Tests
+## Running Tests
 
 The test suite covers API routes, model validations, scoring algorithms, matching engine heuristics, and quota management:
 
@@ -356,7 +356,7 @@ pytest -v
 
 ---
 
-## 📊 Analytics & Reporting
+## Analytics & Reporting
 
 RepoIntel includes an analytics suite designed to monitor platform metrics:
 - **Repository Language Distribution**: Breakdown of repositories analyzed by primary programming language.
@@ -366,7 +366,7 @@ RepoIntel includes an analytics suite designed to monitor platform metrics:
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 Contributions, issues, and feature requests are welcome!
 
@@ -378,7 +378,7 @@ Contributions, issues, and feature requests are welcome!
 
 ---
 
-## 📄 License
+## License
 
 Distributed under the MIT License. See `LICENSE` for more information.
 
