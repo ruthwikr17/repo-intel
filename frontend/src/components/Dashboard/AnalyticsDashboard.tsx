@@ -92,39 +92,27 @@ export function AnalyticsDashboard() {
           <StatCard
             label="Repos Analyzed"
             value={overview.total_repos_analyzed}
-            icon="📁"
-            color="#2ea44f"
           />
           <StatCard
             label="Total Analyses"
             value={overview.total_analyses_run}
-            icon="🔬"
-            color="#0969da"
           />
           <StatCard
             label="Opportunities Found"
             value={overview.total_opportunities_generated}
-            icon="🎯"
-            color="#fb8500"
           />
           <StatCard
             label="PDFs Generated"
             value={overview.total_pdfs_generated}
-            icon="📄"
-            color="#8250df"
           />
           <StatCard
             label="Total API Calls"
             value={overview.total_api_calls}
-            icon="⚡"
-            color="#e03e2d"
           />
           <StatCard
             label="Analysis Quality"
             value={`${quality_tier_breakdown['HIGH'] || 0} HIGH`}
-            icon="✅"
             sub={`${quality_tier_breakdown['MEDIUM'] || 0} MEDIUM`}
-            color="#2ea44f"
           />
         </div>
 

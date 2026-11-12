@@ -1,12 +1,10 @@
 interface Props {
   label: string;
   value: number | string;
-  icon: string;
   sub?: string;
-  color?: string;
 }
 
-export function StatCard({ label, value, icon, sub, color = '#2ea44f' }: Props) {
+export function StatCard({ label, value, sub }: Props) {
   return (
     <div
       className="bg-white rounded-lg border p-5"
@@ -27,12 +25,6 @@ export function StatCard({ label, value, icon, sub, color = '#2ea44f' }: Props) 
             </p>
           )}
         </div>
-        <span
-          className="text-2xl p-2 rounded-lg"
-          style={{ backgroundColor: `${color}15` }}
-        >
-          {icon}
-        </span>
       </div>
     </div>
   );
