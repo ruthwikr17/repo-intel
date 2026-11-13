@@ -1,7 +1,10 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func, text
-from datetime import datetime, timedelta, date
+from sqlalchemy import select, func
+from datetime import datetime, timedelta, date, timezone
+from zoneinfo import ZoneInfo
+
+IST = ZoneInfo("Asia/Kolkata")
 
 from app.database import get_db
 from app.models.repository import Repository
@@ -146,7 +149,11 @@ async def get_overview(db: AsyncSession = Depends(get_db)):
             "full_name": row.full_name,
             "language": row.language,
             "quality_tier": row.quality_tier,
-            "created_at": row.created_at.isoformat() if row.created_at else None,
+            "created_at": (
+                row.created_at.replace(tzinfo=timezone.utc).astimezone(IST).isoformat()
+                if row.created_at
+                else None
+            ),
         }
         for row in recent_result
     ]
@@ -188,5 +195,5 @@ async def get_overview(db: AsyncSession = Depends(get_db)):
         "language_breakdown": language_breakdown,
         "recent_analyses": recent_analyses,
         "api_quota_today": quota_today,
-        "generated_at": datetime.now().isoformat(),
+        "generated_at": datetime.now(IST).isoformat(),
     }

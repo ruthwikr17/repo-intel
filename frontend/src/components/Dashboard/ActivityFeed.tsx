@@ -10,9 +10,13 @@ interface Props {
 }
 
 function timeAgo(isoString: string): string {
-  const date = new Date(isoString);
+  // If no timezone indicator is present, treat as UTC so it aligns with database timestamps
+  const normalizedIso = !isoString.endsWith('Z') && !/[+-]\d{2}:\d{2}$/.test(isoString)
+    ? `${isoString}Z`
+    : isoString;
+  const date = new Date(normalizedIso);
   const now = new Date();
-  const diff = Math.floor((now.getTime() - date.getTime()) / 1000);
+  const diff = Math.max(0, Math.floor((now.getTime() - date.getTime()) / 1000));
 
   if (diff < 60) return `${diff}s ago`;
   if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;

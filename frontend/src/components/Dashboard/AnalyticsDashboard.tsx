@@ -83,7 +83,13 @@ export function AnalyticsDashboard() {
             Analytics Dashboard
           </h1>
           <p className="text-sm mt-1" style={{ color: 'var(--text-muted)' }}>
-            Last updated: {new Date(data.generated_at).toLocaleTimeString()}
+            Last updated: {
+              new Date(
+                !data.generated_at.endsWith('Z') && !/[+-]\d{2}:\d{2}$/.test(data.generated_at)
+                  ? `${data.generated_at}Z`
+                  : data.generated_at
+              ).toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata' })
+            } (IST)
           </p>
         </div>
 
