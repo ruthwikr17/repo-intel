@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { API_BASE } from '../../api/client';
 
 interface Props {
   repoId: number;
@@ -11,7 +12,7 @@ export function AIHelperButtons({ repoId, opportunityId, opportunityTitle }: Pro
   const [toast, setToast] = useState('');
 
   const fetchContext = async (): Promise<string> => {
-    const res = await fetch(`/api/repos/${repoId}/opportunities/${opportunityId}/ai-context`);
+    const res = await fetch(`${API_BASE}/repos/${repoId}/opportunities/${opportunityId}/ai-context`);
     const data = await res.json();
     return data.context_prompt;
   };

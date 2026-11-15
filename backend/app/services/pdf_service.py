@@ -3,7 +3,6 @@ import uuid
 from pathlib import Path
 from datetime import datetime
 from jinja2 import Environment, FileSystemLoader
-from weasyprint import HTML
 
 TEMPLATES_DIR = Path(__file__).parent.parent / "templates"
 OUTPUT_DIR = Path("/tmp/repoinsight_pdfs")
@@ -92,6 +91,8 @@ def generate_contributor_guide(
         ],
     )
 
+    from weasyprint import HTML
+
     filename = f"contributor_guide_{uuid.uuid4().hex[:8]}.pdf"
     output_path = OUTPUT_DIR / filename
     pdf_bytes = HTML(string=html_content).write_pdf()
@@ -113,6 +114,8 @@ def generate_executive_summary(
         analysis=analysis,
         generated_at=datetime.now().strftime("%B %d, %Y"),
     )
+
+    from weasyprint import HTML
 
     filename = f"executive_summary_{uuid.uuid4().hex[:8]}.pdf"
     output_path = OUTPUT_DIR / filename
@@ -148,6 +151,8 @@ def generate_code_quality_report(
         generated_at=datetime.now().strftime("%B %d, %Y"),
     )
 
+    from weasyprint import HTML
+
     filename = f"code_quality_{uuid.uuid4().hex[:8]}.pdf"
     output_path = OUTPUT_DIR / filename
     pdf_bytes = HTML(string=html_content).write_pdf()
@@ -177,6 +182,8 @@ def generate_full_analysis(
         intermediate_opps=[o for o in opportunities if o.get("difficulty_tier") == "intermediate"],
         advanced_opps=[o for o in opportunities if o.get("difficulty_tier") == "advanced"],
     )
+
+    from weasyprint import HTML
 
     filename = f"full_analysis_{uuid.uuid4().hex[:8]}.pdf"
     output_path = OUTPUT_DIR / filename

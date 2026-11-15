@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
-import { getAnalysis, getOpportunities } from '../../api/client';
+import { getAnalysis, getOpportunities, API_BASE } from '../../api/client';
 import { OpportunityList } from '../Opportunities/OpportunityList';
 import { LoadingSpinner } from '../shared/LoadingSpinner';
 import { ErrorMessage } from '../shared/ErrorMessage';
@@ -24,10 +24,7 @@ export function ResultsDashboard({ repoId, userProfile }: Props) {
   const handleDownloadPdf = async (reportType: string) => {
     setDownloading(true);
     try {
-      const baseUrl = import.meta.env.VITE_API_URL
-        ? `${import.meta.env.VITE_API_URL.replace(/\/+$/, '')}/api`
-        : '/api';
-      const res = await fetch(`${baseUrl}/pdfs/generate`, {
+      const res = await fetch(`${API_BASE}/pdfs/generate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ repo_id: repoId, report_type: reportType }),
@@ -36,9 +33,7 @@ export function ResultsDashboard({ repoId, userProfile }: Props) {
       if (data.download_url) {
         const fullUrl = data.download_url.startsWith('http')
           ? data.download_url
-          : import.meta.env.VITE_API_URL
-          ? `${import.meta.env.VITE_API_URL.replace(/\/+$/, '')}${data.download_url}`
-          : data.download_url;
+          : `${import.meta.env.VITE_API_URL ?? ''}${data.download_url}`;
         window.open(fullUrl, '_blank');
       }
     } catch (e) {

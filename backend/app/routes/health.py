@@ -5,6 +5,11 @@ from app.database import get_db
 
 router = APIRouter()
 
+@router.get("/ping")
+async def ping():
+    """Cheap endpoint used by the frontend to detect/wake the server."""
+    return {"status": "ok"}
+
 @router.get("/health")
 async def health_check(db: AsyncSession = Depends(get_db)):
     try:

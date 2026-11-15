@@ -4,17 +4,59 @@ import type {
   Repository, Opportunity, UserProfile
 } from '../types';
 
-const baseURL = import.meta.env.VITE_API_URL
+export const API_BASE: string = import.meta.env.VITE_API_URL
   ? `${import.meta.env.VITE_API_URL.replace(/\/+$/, '')}/api`
   : '/api';
 
 const api = axios.create({
-  baseURL,
+  baseURL: API_BASE,
   headers: { 'Content-Type': 'application/json' },
-  // A stuck connection should become a retryable polling error, rather than
-  // leaving the progress view spinning forever.
-  timeout: 15_000,
+  timeout: 60_000,
 });
+
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const config: any = error.config;
+    if (!config || config.__noRetry) return Promise.reject(error);
+
+    const isGet = (config.method || '').toLowerCase() === 'get';
+    const isStatusPoll = (config.url || '').includes('/analyze/status');
+    const status = error.response?.status;
+    // No response (timeout / network / CORS-less cold start) or gateway errors
+    const retryable = !error.response || [502, 503, 504].includes(status);
+
+    if (!isGet || isStatusPoll || !retryable) return Promise.reject(error);
+
+    config.__retryCount = (config.__retryCount || 0) + 1;
+    if (config.__retryCount > 4) return Promise.reject(error);
+
+    await new Promise((r) => setTimeout(r, 2000 * config.__retryCount));
+    return api(config);
+  }
+);
+
+export const pingServer = async (timeoutMs = 8000): Promise<boolean> => {
+  try {
+    await api.get('/ping', { timeout: timeoutMs, __noRetry: true } as any);
+    return true;
+  } catch {
+    return false;
+  }
+};
+
+export const waitForServer = async (
+  onWaiting?: (secondsWaited: number) => void,
+  maxWaitMs = 120000
+): Promise<boolean> => {
+  const start = Date.now();
+  while (Date.now() - start < maxWaitMs) {
+    if (await pingServer()) return true;
+    onWaiting?.(Math.round((Date.now() - start) / 1000));
+    await new Promise((r) => setTimeout(r, 3000));
+  }
+  return false;
+};
 
 export const triggerAnalysis = async (data: AnalysisRequest) => {
   const res = await api.post('/repos/analyze', data);

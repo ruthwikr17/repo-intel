@@ -54,8 +54,9 @@ app.include_router(analytics_router, prefix="/api", tags=["analytics"])
 
 @app.on_event("startup")
 async def startup():
-    await create_tables()
-    print(f"Repo Intel API starting in {settings.app_env} mode")
+    if settings.app_env != "production":
+        await create_tables()
+    print(f"RepoInsight API starting in {settings.app_env} mode")
 
 
 @app.on_event("shutdown")

@@ -10,7 +10,7 @@ import { useAnalysis } from './hooks/useAnalysis';
 type View = 'home' | 'results' | 'repos' | 'dashboard';
 
 export default function App() {
-  const { startAnalysis, taskStatus, loading, error } = useAnalysis();
+  const { startAnalysis, taskStatus, loading, error, wakingUp, wakeSeconds } = useAnalysis();
   const [view, setView] = useState<View>('home');
   const [repoId, setRepoId] = useState<number | null>(null);
   const [repoName, setRepoName] = useState<string>('');
@@ -77,7 +77,7 @@ export default function App() {
       )}
 
       {showProgress && (
-        <ProgressView taskStatus={taskStatus} />
+        <ProgressView taskStatus={taskStatus} wakingUp={wakingUp} wakeSeconds={wakeSeconds} />
       )}
 
       {view === 'results' && repoId && (

@@ -1,3 +1,4 @@
+import time
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
@@ -15,10 +16,12 @@ from app.models.api_log import ApiLog
 
 router = APIRouter()
 
+_cache = {"data": None, "ts": 0.0}
+CACHE_TTL_SECONDS = 120
 
-@router.get("/analytics/overview")
-async def get_overview(db: AsyncSession = Depends(get_db)):
-    """Main analytics endpoint - returns all dashboard metrics."""
+
+async def _compute_overview(db: AsyncSession) -> dict:
+    """Compute all dashboard metrics from the database."""
 
     # Total repos analyzed
     total_repos = await db.scalar(
@@ -197,3 +200,14 @@ async def get_overview(db: AsyncSession = Depends(get_db)):
         "api_quota_today": quota_today,
         "generated_at": datetime.now(IST).isoformat(),
     }
+
+
+@router.get("/analytics/overview")
+async def get_overview(db: AsyncSession = Depends(get_db)):
+    now = time.time()
+    if _cache["data"] is not None and now - _cache["ts"] < CACHE_TTL_SECONDS:
+        return _cache["data"]
+    result = await _compute_overview(db)
+    _cache["data"] = result
+    _cache["ts"] = now
+    return result

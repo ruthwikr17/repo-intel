@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react';
 import { StatCard } from './StatCard';
 import { SimpleBarChart } from './SimpleBarChart';
 import { ActivityFeed } from './ActivityFeed';
 import { LoadingSpinner } from '../shared/LoadingSpinner';
 import { ErrorMessage } from '../shared/ErrorMessage';
 import { getAnalytics } from '../../api/client';
+import { useCachedFetch } from '../../hooks/useCachedFetch';
 
 interface AnalyticsData {
   overview: {
@@ -35,35 +35,37 @@ interface AnalyticsData {
 }
 
 export function AnalyticsDashboard() {
-  const [data, setData] = useState<AnalyticsData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { data, loading, error, slow, reload } = useCachedFetch<AnalyticsData>('analytics_cache_v1', getAnalytics);
 
-  useEffect(() => {
-    getAnalytics()
-      .then(setData)
-      .catch((e: any) => {
-        console.error('Failed to load analytics:', e);
-        setError(e?.response?.data?.detail || e?.message || 'Failed to load analytics');
-      })
-      .finally(() => setLoading(false));
-  }, []);
-
-  if (loading) {
+  if (!data && loading) {
     return (
-      <div className="flex items-center justify-center py-20">
+      <div className="flex flex-col items-center justify-center py-20 gap-3">
         <LoadingSpinner size="lg" />
+        {slow && (
+          <p className="text-xs text-muted" style={{ color: 'var(--text-muted)' }}>
+            Server is waking up (free hosting). This can take up to a minute...
+          </p>
+        )}
       </div>
     );
   }
 
-  if (error || !data) {
+  if (!data && error) {
     return (
-      <div className="max-w-2xl mx-auto px-6 py-12">
-        <ErrorMessage message={error || 'Failed to load analytics'} />
+      <div className="max-w-2xl mx-auto px-6 py-12 flex flex-col items-center gap-4">
+        <ErrorMessage message={error} />
+        <button
+          onClick={reload}
+          className="px-4 py-2 text-xs font-medium rounded text-white"
+          style={{ backgroundColor: 'var(--color-primary, #0969da)' }}
+        >
+          Retry
+        </button>
       </div>
     );
   }
+
+  if (!data) return null;
 
   const { overview, quality_tier_breakdown } = data;
 
@@ -73,6 +75,21 @@ export function AnalyticsDashboard() {
       style={{ backgroundColor: 'var(--bg-primary)' }}
     >
       <div className="max-w-6xl mx-auto px-6 py-8">
+
+        {/* Cache status banners */}
+        {loading && (
+          <div className="mb-4 px-3 py-1.5 rounded text-xs" style={{ backgroundColor: '#fff8e1', color: '#8a6d00' }}>
+            Refreshing...
+          </div>
+        )}
+        {error && (
+          <div className="mb-4 px-3 py-1.5 rounded text-xs flex items-center justify-between" style={{ backgroundColor: '#ffeef0', color: '#b42318' }}>
+            <span>Showing last saved data. Server unreachable.</span>
+            <button onClick={reload} className="font-semibold underline ml-2">
+              Retry
+            </button>
+          </div>
+        )}
 
         {/* Header */}
         <div className="mb-8">

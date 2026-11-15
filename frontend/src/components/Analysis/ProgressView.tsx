@@ -13,9 +13,11 @@ const STEPS = [
 
 interface Props {
   taskStatus: TaskStatus | null;
+  wakingUp?: boolean;
+  wakeSeconds?: number;
 }
 
-export function ProgressView({ taskStatus }: Props) {
+export function ProgressView({ taskStatus, wakingUp, wakeSeconds = 0 }: Props) {
   const currentStep = taskStatus?.step || 'Starting...';
   const currentIndex = STEPS.findIndex((s) =>
     currentStep.toLowerCase().includes(s.toLowerCase().split(' ')[0])
@@ -38,6 +40,15 @@ export function ProgressView({ taskStatus }: Props) {
           running AI analysis, and finding the best contribution opportunities.
         </p>
       </div>
+
+      {wakingUp && (
+        <div
+          className="mb-6 p-4 rounded border text-sm font-medium text-center"
+          style={{ backgroundColor: '#fff8e1', borderColor: '#ffe082', color: '#8a6d00' }}
+        >
+          Waking up the server (free hosting)... {wakeSeconds}s. Your analysis will start automatically.
+        </div>
+      )}
 
       {/* Progress Steps */}
       <div
